@@ -74,7 +74,7 @@ function Index() {
           path="/"
           element={
             <>
-              {currentUser ? (
+              {currentUser?.admin ? (
                 <Home currentUser={currentUser} />
               ) : (
                 <main>
@@ -88,7 +88,7 @@ function Index() {
           path="/message"
           element={
             <>
-              {currentUser ? (
+              {currentUser?.admin ? (
                 <Message />
               ) : (
                 <main>
@@ -102,7 +102,7 @@ function Index() {
           path="/list"
           element={
             <>
-              {currentUser ? (
+              {currentUser?.admin ? (
                 <List />
               ) : (
                 <main>

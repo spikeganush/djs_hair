@@ -6,9 +6,11 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider,
 } from 'firebase/auth'
 
-import { doc, setDoc } from '@firebase/firestore'
+import { doc, setDoc, getDoc } from '@firebase/firestore'
 
 import './LoginScreen.css'
 import './RegisterScreen.css'
@@ -16,6 +18,8 @@ import './ResetPasswordScreen.css'
 import './ForgotPasswordScreen.css'
 
 const Auth = (props) => {
+  const auth = getAuth()
+
   const [registerScreenModal, setRegisterScreenModal] = useState(props.signup)
   const [loginScreenModal, setLoginScreenModal] = useState(props.signin)
   const [forgotPasswordModal, setForgotPasswordModal] = useState(props.forgot)
@@ -42,12 +46,12 @@ const Auth = (props) => {
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [loadingGoogle, setLoadingGoogle] = useState(false)
 
     const loginHandler = (e) => {
       e.preventDefault()
       setLoading(true)
 
-      const auth = getAuth()
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
           props.popup(false)
@@ -56,8 +60,39 @@ const Auth = (props) => {
         .catch((e) => setError(e.message))
     }
 
+    const signInWithGoogle = () => {
+      //signin with google
+      setLoadingGoogle(true)
+
+      const provider = new GoogleAuthProvider()
+      signInWithPopup(auth, provider)
+        .then(async () => {
+          const docRef = doc(db, 'users', auth.currentUser.uid)
+          const docSnap = await getDoc(docRef)
+
+          if (docSnap.exists()) {
+            //console.log('user exists')
+            props.popup(false)
+            navigate('/')
+          } else {
+            updateProfile(auth.currentUser, {
+              displayName: auth.currentUser.displayName,
+            })
+            setDoc(doc(db, 'users', auth.currentUser.uid), {
+              id: auth.currentUser.uid,
+              email: auth.currentUser.email,
+              displayName: auth.currentUser.displayName,
+              admin: false,
+            })
+            props.popup(false)
+            navigate('/')
+          }
+        })
+        .catch((e) => console.log(e.message))
+    }
+
     return (
-      <form onSubmit={loginHandler} className="login-screen__form">
+      <form className="login-screen__form">
         <h3 className="login-screen__title">Login</h3>
         {error && <span className="error-message">{error}</span>}
         <div className="form-group">
@@ -90,12 +125,24 @@ const Auth = (props) => {
             tabIndex={2}
           />
         </div>
-        <button disabled={loading} type="submit" className="btn btn-primary">
+        <button
+          disabled={loading}
+          className="btn btn-primary"
+          onClick={loginHandler}
+        >
           {loading ? 'Loading ...' : 'Login'}
         </button>
-
+        &nbsp;
+        <button
+          disabled={loadingGoogle}
+          className="btn btn-primary"
+          onClick={signInWithGoogle}
+        >
+          <i className="fab fa-google"></i>{' '}
+          {loadingGoogle ? 'Loading ...' : 'Continue with Google'}
+        </button>
         <span className="login-screen__subtext">
-          Don't have an account?{' '}
+          Don't have an account? &nbsp;
           <span onClick={handleModals} id="register" className="btn-log">
             Register
           </span>
@@ -123,8 +170,6 @@ const Auth = (props) => {
         return setError('Passwords do not match')
       }
 
-      const auth = getAuth()
-
       createUserWithEmailAndPassword(auth, email, password)
         .then(() => {
           updateProfile(auth.currentUser, { displayName: username })
@@ -141,7 +186,7 @@ const Auth = (props) => {
     }
 
     return (
-      <form onSubmit={registerHandler} className="register-screen__form">
+      <form className="register-screen__form">
         <h3 className="register-screen__title">Register</h3>
         {error && <span className="error-message">{error}</span>}
         <div className="form-group">
@@ -190,7 +235,11 @@ const Auth = (props) => {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </div>
-        <button type="submit" className="btn btn-primary">
+        <button
+          type="submit"
+          className="btn btn-primary"
+          onClick={registerHandler}
+        >
           Register
         </button>
 
