@@ -1,10 +1,14 @@
 import React from 'react'
 
-function Home() {
+function Home({ currentUser }) {
   return (
-    <div>
-      <h1>Home</h1>
-    </div>
+    <main>
+      {!currentUser ? (
+        <h1>You need to be admin to access this page</h1>
+      ) : (
+        <h1>Welcome {currentUser?.displayName}</h1>
+      )}
+    </main>
   )
 }
 

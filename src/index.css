@@ -103,13 +103,22 @@ iframe {
 }
 
 #root {
+  position: relative;
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
   background-color: var(--bs-indigo);
 }
 
+nav,
+main,
+footer {
+  padding-inline: 15px;
+  color: white;
+}
+
 /* ---------------navbar-------------------- */
+
 .logo {
   width: 40px;
   height: 40px;
@@ -118,4 +127,200 @@ iframe {
 
 .bg-light {
   background-color: var(--bs-purple) !important;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.login-link {
+  cursor: pointer;
+}
+
+/*------------------------Modal---------------------------- */
+
+.popup-profil-container {
+  z-index: 100;
+  width: 100%;
+  top: 0;
+  left: 0;
+  height: 100%;
+  position: fixed;
+  animation: popup 0.3s forwards;
+}
+
+@supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
+  @keyframes popup {
+    to {
+      backdrop-filter: blur(2px);
+    }
+  }
+}
+
+@supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+  @keyframes popup {
+    to {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.log-container {
+  margin: 0 auto;
+  display: grid;
+  justify-content: center;
+  grid-template-columns: 60% 40%;
+}
+
+@media screen and (max-width: 885px) {
+  .log-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.popup-profil-container .modal-container {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  background: black;
+  padding: 5px;
+  border-radius: 20px;
+  box-shadow: 0px 0px 20px 6px rgb(0 0 0 / 41%);
+  overflow: auto;
+  transform: scaleY(0) translate(-100%);
+  transform-origin: center;
+  animation: modal 0.5s forwards;
+}
+
+.popup-profil-container .modal-container h3 {
+  min-width: 200px;
+}
+
+@keyframes modal {
+  to {
+    transform: scale(1) translate(-50%);
+  }
+}
+
+.popup-profil-container .modal-container .cross {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  transition: 0.1s;
+  cursor: pointer;
+}
+
+.popup-profil-container .modal-container .cross:hover {
+  transform: scale(1.07);
+}
+
+.popup-profil-container .modal-container ul {
+  margin: 20px 0 0;
+  max-height: 500px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.popup-profil-container .modal-container ul::-webkit-scrollbar {
+  width: 2px;
+}
+
+.popup-profil-container .modal-container ul::-webkit-scrollbar-track {
+  background: white;
+}
+
+.popup-profil-container .modal-container ul::-webkit-scrollbar-thumb {
+  background: white;
+}
+
+.popup-profil-container .modal-container ul::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.popup-profil-container .modal-container ul li {
+  display: grid;
+  grid-template-columns: 64px 1fr 114px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.popup-profil-container .modal-container ul li img {
+  height: 50px;
+  width: 50px;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 0 2px rgba(51, 51, 51, 0.376);
+}
+
+.popup-profil-container .modal-container ul li h4 {
+  text-align: left;
+  min-width: 210px;
+}
+
+.popup-profil-container .modal-container ul li {
+  text-align: left;
+}
+
+.popup-profil-container .modal-container ul li button {
+  background: blue;
+  border-radius: 20px;
+  margin-right: 6px;
+}
+
+#register,
+#login {
+  color: #0d6efd;
+  cursor: pointer;
+}
+
+.popup-profil-container .modal-container ul li button:hover {
+  color: #00162c;
+  transform: translateX(2px);
+}
+
+.form-group,
+.form-group label,
+.form-group input {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+}
+
+.form-group input,
+.edit-delete textarea,
+.form-group textarea {
+  padding: 10px 20px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background-color: #eee;
+  outline-width: 0;
+  font-size: 1rem;
+  border-radius: 5px;
+  box-shadow: 0 0 2px black;
+  resize: vertical;
+}
+
+.form-group input:focus {
+  border-bottom: 3px solid var(--main-color);
+}
+/*------------------------/Modal---------------------------- */
+
+/* ---------------main-------------------- */
+
+/* ---------------footer-------------------- */
+
+footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bs-purple);
+  min-height: 30px;
 }

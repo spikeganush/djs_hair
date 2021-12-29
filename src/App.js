@@ -1,4 +1,5 @@
-import Routes from './components/Routes'
+import Routes from './components/Routes/Index'
+
 function App() {
   return <Routes />
 }

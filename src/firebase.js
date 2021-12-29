@@ -1,10 +1,5 @@
-// Initialize Firebase
-const app = initializeApp(firebaseConfig)
-
-import { useEffect, useState } from 'react'
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -17,26 +12,5 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
-const auth = getAuth(app)
-
-export function logout() {
-  return signOut(auth)
-}
-
-// Custom Hook
-export function useAuth() {
-  const [currentUser, setCurrentUser] = useState()
-  useEffect(() => {
-    let mounted = true
-    if (mounted) {
-      const unsub = onAuthStateChanged(auth, (user) => setCurrentUser(user))
-      return unsub
-    }
-
-    return () => (mounted = false)
-  }, [currentUser])
-
-  return currentUser
-}
 
 export default getFirestore(app)

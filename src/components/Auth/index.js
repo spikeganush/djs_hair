@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import db from '../../firebase'
 import {
   getAuth,
@@ -15,11 +15,11 @@ import './RegisterScreen.css'
 import './ResetPasswordScreen.css'
 import './ForgotPasswordScreen.css'
 
-const Log = (props) => {
+const Auth = (props) => {
   const [registerScreenModal, setRegisterScreenModal] = useState(props.signup)
   const [loginScreenModal, setLoginScreenModal] = useState(props.signin)
   const [forgotPasswordModal, setForgotPasswordModal] = useState(props.forgot)
-  let history = useHistory()
+  let navigate = useNavigate()
 
   const handleModals = (e) => {
     if (e.target.id === 'register') {
@@ -51,7 +51,7 @@ const Log = (props) => {
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
           props.popup(false)
-          history.push('/profile')
+          navigate('/')
         })
         .catch((e) => setError(e.message))
     }
@@ -135,7 +135,7 @@ const Log = (props) => {
             admin: false,
           })
           props.popup(false)
-          history.push('/')
+          navigate('/')
         })
         .catch((e) => console.log(e.message))
     }
@@ -253,4 +253,4 @@ const Log = (props) => {
   )
 }
 
-export default Log
+export default Auth
