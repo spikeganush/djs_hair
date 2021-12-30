@@ -12,17 +12,31 @@ import List from '../../pages/List'
 //firebase
 import { getAuth, onAuthStateChanged, signOut } from '@firebase/auth'
 import db from '../../firebase'
-import { doc, getDoc } from '@firebase/firestore'
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  collection,
+  orderBy,
+} from '@firebase/firestore'
 
 function Index() {
   const auth = getAuth()
   const [user, setUser] = useState()
   const [authed, setAuthed] = useState()
   const [currentUser, setCurrentUser] = useState()
+  const [messageHome, setMessageHome] = useState(
+    'You need to be admin to access this page'
+  )
+
+  const [appointments, setAppointments] = useState([])
+  const [appointmentsNeedMessage, setAppointmentsNeedMessage] = useState([])
+  const [appointmentsFinaleMessage, setAppointmentsFinaleMessage] = useState([])
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        setMessageHome('Loading...')
         setUser(user)
         setAuthed(true)
       } else {
@@ -41,8 +55,40 @@ function Index() {
     }
   }, [currentUser, user])
 
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, 'appointments'),
+      (snapshot) => {
+        const appointments = []
+        const appointmentsNeedMessage = []
+        const appointmentsFinaleMessage = []
+        snapshot.forEach((doc) => {
+          appointments.push({ ...doc.data(), id: doc.id })
+          //if the date in doc.data().date is older than 6 days, add it to appointmentsNeedMessage
+          if (
+            new Date(doc.data().date.toDate()).getTime() <=
+            new Date().getTime() - 432000000
+          ) {
+            if (
+              new Date(doc.data().date.toDate()).getTime() <=
+              new Date().getTime() - 604800000
+            ) {
+              appointmentsFinaleMessage.push({ ...doc.data(), id: doc.id })
+            } else {
+              appointmentsNeedMessage.push({ ...doc.data(), id: doc.id })
+            }
+          }
+        })
+
+        setAppointments(appointments)
+        setAppointmentsNeedMessage(appointmentsNeedMessage)
+        setAppointmentsFinaleMessage(appointmentsFinaleMessage)
+      }
+    )
+    return () => unsubscribe()
+  }, [])
+
   const getUserDetails = async (id) => {
-    //console.log('...getting user details', id)
     const docRef = doc(db, 'users', id)
     const docData = await getDoc(docRef)
     return new Promise((resolve, reject) => {
@@ -68,17 +114,21 @@ function Index() {
 
   return (
     <Router>
-      <Header authed={authed} handleLogout={handleLogout} />
+      <Header
+        authed={authed}
+        handleLogout={handleLogout}
+        setMessageHome={setMessageHome}
+      />
       <Routes>
         <Route
           path="/"
           element={
             <>
               {currentUser?.admin ? (
-                <Home currentUser={currentUser} />
+                <Home currentUser={currentUser} messageHome={messageHome} />
               ) : (
                 <main>
-                  <h1>You need to login to access this page</h1>
+                  <h1>{messageHome}</h1>
                 </main>
               )}
             </>
@@ -89,10 +139,13 @@ function Index() {
           element={
             <>
               {currentUser?.admin ? (
-                <Message />
+                <Message
+                  appointments={appointmentsNeedMessage}
+                  finalMessages={appointmentsFinaleMessage}
+                />
               ) : (
                 <main>
-                  <h1>You need to login to access this page</h1>
+                  <h1>{messageHome}</h1>
                 </main>
               )}
             </>
@@ -103,10 +156,10 @@ function Index() {
           element={
             <>
               {currentUser?.admin ? (
-                <List />
+                <List appointments={appointments} />
               ) : (
                 <main>
-                  <h1>You need to login to access this page</h1>
+                  <h1>{messageHome}</h1>
                 </main>
               )}
             </>

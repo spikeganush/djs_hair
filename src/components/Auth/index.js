@@ -7,6 +7,7 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
 } from 'firebase/auth'
 
@@ -19,6 +20,9 @@ import './ForgotPasswordScreen.css'
 
 const Auth = (props) => {
   const auth = getAuth()
+  //get the screen width resolutions
+  const screenWidth = window.innerWidth
+  console.log(screenWidth)
 
   const [registerScreenModal, setRegisterScreenModal] = useState(props.signup)
   const [loginScreenModal, setLoginScreenModal] = useState(props.signin)
@@ -57,7 +61,10 @@ const Auth = (props) => {
           props.popup(false)
           navigate('/')
         })
-        .catch((e) => setError(e.message))
+        .catch((e) => {
+          setError(e.message)
+          setLoading(false)
+        })
     }
 
     const signInWithGoogle = () => {
@@ -65,30 +72,58 @@ const Auth = (props) => {
       setLoadingGoogle(true)
 
       const provider = new GoogleAuthProvider()
-      signInWithPopup(auth, provider)
-        .then(async () => {
-          const docRef = doc(db, 'users', auth.currentUser.uid)
-          const docSnap = await getDoc(docRef)
+      if (screenWidth > 768) {
+        signInWithPopup(auth, provider)
+          .then(async () => {
+            const docRef = doc(db, 'users', auth.currentUser.uid)
+            const docSnap = await getDoc(docRef)
 
-          if (docSnap.exists()) {
-            //console.log('user exists')
-            props.popup(false)
-            navigate('/')
-          } else {
-            updateProfile(auth.currentUser, {
-              displayName: auth.currentUser.displayName,
-            })
-            setDoc(doc(db, 'users', auth.currentUser.uid), {
-              id: auth.currentUser.uid,
-              email: auth.currentUser.email,
-              displayName: auth.currentUser.displayName,
-              admin: false,
-            })
-            props.popup(false)
-            navigate('/')
-          }
-        })
-        .catch((e) => console.log(e.message))
+            if (docSnap.exists()) {
+              //console.log('user exists')
+              props.popup(false)
+              navigate('/')
+            } else {
+              updateProfile(auth.currentUser, {
+                displayName: auth.currentUser.displayName,
+              })
+              setDoc(doc(db, 'users', auth.currentUser.uid), {
+                id: auth.currentUser.uid,
+                email: auth.currentUser.email,
+                displayName: auth.currentUser.displayName,
+                admin: false,
+              })
+              props.popup(false)
+              navigate('/')
+            }
+          })
+          .catch((e) => console.log(e.message))
+      } else {
+        signInWithRedirect(auth, provider)
+          .then(async () => {
+            props.setMessageHome('Loading...')
+            const docRef = doc(db, 'users', auth.currentUser.uid)
+            const docSnap = await getDoc(docRef)
+
+            if (docSnap.exists()) {
+              //console.log('user exists')
+              props.popup(false)
+              navigate('/')
+            } else {
+              updateProfile(auth.currentUser, {
+                displayName: auth.currentUser.displayName,
+              })
+              setDoc(doc(db, 'users', auth.currentUser.uid), {
+                id: auth.currentUser.uid,
+                email: auth.currentUser.email,
+                displayName: auth.currentUser.displayName,
+                admin: false,
+              })
+              props.popup(false)
+              navigate('/')
+            }
+          })
+          .catch((e) => console.log(e.message))
+      }
     }
 
     return (

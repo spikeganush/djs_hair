@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
+import validator from 'validator'
+import db from '../firebase'
+import { collection, addDoc } from 'firebase/firestore'
 
-function Home({ currentUser }) {
+function Home({ currentUser, messageHome }) {
   const [value, onChange] = useState(new Date())
   const [customerName, setCustomerName] = useState()
   const [customerEmail, setCustomerEmail] = useState()
@@ -10,24 +13,99 @@ function Home({ currentUser }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  console.log(value)
-  console.log(customerName)
-  console.log(customerEmail)
-  console.log(customerPhone)
-
-  const registerHandler = (e) => {
+  const registerHandler = async (e) => {
     e.preventDefault()
     setLoading(true)
+
+    if (value === undefined) {
+      setTimeout(() => {
+        setError('')
+      }, 5000)
+      setLoading(false)
+      return setError('Please select a date')
+    }
+
+    if (
+      customerName === undefined &&
+      customerEmail === undefined &&
+      customerPhone === undefined
+    ) {
+      setTimeout(() => {
+        setError('')
+      }, 5000)
+      setLoading(false)
+      return setError('Please fill all the fields')
+    }
+
+    if (customerName === undefined) {
+      setTimeout(() => {
+        setError('')
+      }, 5000)
+      setLoading(false)
+      return setError('Please enter customer name')
+    }
+
+    if (customerEmail === undefined) {
+      setTimeout(() => {
+        setError('')
+      }, 5000)
+      setLoading(false)
+      return setError('Please enter customer email')
+    }
+
+    if (!validator.isEmail(customerEmail)) {
+      setTimeout(() => {
+        setError('')
+      }, 5000)
+      setLoading(false)
+      return setError('Please enter valid email')
+    }
+
+    if (customerPhone === undefined) {
+      setTimeout(() => {
+        setError('')
+      }, 5000)
+      setLoading(false)
+      return setError('Please enter customer phone number')
+    }
+
+    if (
+      customerName !== undefined &&
+      customerEmail !== undefined &&
+      customerPhone !== undefined
+    ) {
+      try {
+        const data = {
+          customerName: customerName,
+          customerEmail: customerEmail,
+          customerPhone: customerPhone,
+          messageReminder: false,
+          finalMessage: false,
+          date: value,
+        }
+        const res = await addDoc(collection(db, 'appointments'), data)
+        setLoading(false)
+        setError('')
+        setCustomerName('')
+        setCustomerEmail('')
+        setCustomerPhone('')
+        onChange(new Date())
+      } catch (err) {
+        console.log(err)
+        setLoading(false)
+        setError(err.message)
+      }
+    }
   }
 
   return (
     <main>
       {!currentUser ? (
-        <h1>You need to be admin to access this page</h1>
+        <h1>{messageHome}</h1>
       ) : (
         <>
           <h1 className="welcome">Welcome {currentUser.displayName}</h1>
-          <h2>Select the appointment date:</h2>
+          <h2 className="appointment-date">Select the appointment date:</h2>
           <Calendar onChange={onChange} value={value} />
           <form className="add-customer__form">
             {error && <span className="error-message">{error}</span>}
@@ -39,7 +117,7 @@ function Home({ currentUser }) {
                 id="name"
                 placeholder="Customer name"
                 onChange={(e) => setCustomerName(e.target.value)}
-                value={customerName}
+                value={customerName ? customerName : ''}
                 tabIndex={1}
               />
             </div>
@@ -51,7 +129,7 @@ function Home({ currentUser }) {
                 id="email"
                 placeholder="Enter email"
                 onChange={(e) => setCustomerEmail(e.target.value)}
-                value={customerEmail}
+                value={customerEmail ? customerEmail : ''}
                 tabIndex={2}
               />
             </div>
@@ -63,7 +141,7 @@ function Home({ currentUser }) {
                 id="phone"
                 placeholder="Phone number"
                 onChange={(e) => setCustomerPhone(e.target.value)}
-                value={customerPhone}
+                value={customerPhone ? customerPhone : ''}
                 tabIndex={2}
               />
             </div>

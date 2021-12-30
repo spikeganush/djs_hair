@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import logo from '../img/logo.png'
 import Auth from './Auth'
 
-function Header({ authed, handleLogout }) {
+function Header({ authed, handleLogout, setMessageHome }) {
   //useState to open and close the login popup
   const [loginPopup, setLoginPopup] = useState(false)
 
@@ -101,6 +101,7 @@ function Header({ authed, handleLogout }) {
                 signup={false}
                 forgot={false}
                 popup={setLoginPopup}
+                setMessageHome={setMessageHome}
               />
             </div>
           </div>
