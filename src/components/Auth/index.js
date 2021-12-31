@@ -22,7 +22,6 @@ const Auth = (props) => {
   const auth = getAuth()
   //get the screen width resolutions
   const screenWidth = window.innerWidth
-  console.log(screenWidth)
 
   const [registerScreenModal, setRegisterScreenModal] = useState(props.signup)
   const [loginScreenModal, setLoginScreenModal] = useState(props.signin)

@@ -48,24 +48,31 @@ function List({ appointments }) {
               Delete
             </button>
             <div className="checkbox-area">
-              <input
-                type="checkbox"
-                checked={appointment ? appointment.messageReminder : false}
-                id="reminder"
-                onChange={() => {
-                  updateReminder(appointment.id, !appointment.messageReminder)
-                }}
-              />
-              <label htmlFor="reminder">Reminder</label>
-              <input
-                type="checkbox"
-                checked={appointment ? appointment.finalMessage : false}
-                id="final"
-                onChange={() => {
-                  updateFinalMessage(appointment.id, !appointment.finalMessage)
-                }}
-              />
-              <label htmlFor="final">Final</label>
+              <div className="checkboxes">
+                <input
+                  type="checkbox"
+                  checked={appointment ? appointment.messageReminder : false}
+                  id="reminder"
+                  onChange={() => {
+                    updateReminder(appointment.id, !appointment.messageReminder)
+                  }}
+                />
+                <label htmlFor="reminder">Reminder</label>
+              </div>
+              <div className="checkboxes">
+                <input
+                  type="checkbox"
+                  checked={appointment ? appointment.finalMessage : false}
+                  id="final"
+                  onChange={() => {
+                    updateFinalMessage(
+                      appointment.id,
+                      !appointment.finalMessage
+                    )
+                  }}
+                />
+                <label htmlFor="final">Final</label>
+              </div>
             </div>
           </div>
         ))}

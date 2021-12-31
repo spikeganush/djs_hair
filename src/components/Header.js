@@ -63,7 +63,10 @@ function Header({ authed, handleLogout, setMessageHome }) {
                     </span>
                     <span
                       className="text-light login-link"
-                      onClick={() => handleLogout()}
+                      onClick={() => {
+                        handleLogout()
+                        setLoginPopup(true)
+                      }}
                     >
                       {' '}
                       Logout
