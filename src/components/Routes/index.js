@@ -31,7 +31,7 @@ function Index() {
 
   const [appointments, setAppointments] = useState([])
   const [appointmentsNeedMessage, setAppointmentsNeedMessage] = useState([])
-  const [appointmentsFinaleMessage, setAppointmentsFinaleMessage] = useState([])
+  const [appointmentsfinalMessage, setAppointmentsfinalMessage] = useState([])
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -58,31 +58,36 @@ function Index() {
   useEffect(() => {
     const unsubscribe = onSnapshot(
       collection(db, 'appointments'),
+      orderBy('date', 'desc'),
       (snapshot) => {
         const appointments = []
         const appointmentsNeedMessage = []
-        const appointmentsFinaleMessage = []
+        const appointmentsfinalMessage = []
         snapshot.forEach((doc) => {
           appointments.push({ ...doc.data(), id: doc.id })
-          //if the date in doc.data().date is older than 6 days, add it to appointmentsNeedMessage
+
           if (
             new Date(doc.data().date.toDate()).getTime() <=
-            new Date().getTime() - 432000000
+              new Date().getTime() - 432000000 &&
+            new Date(doc.data().date.toDate()).getTime() >=
+              new Date().getTime() - 604800000 &&
+            !doc.data().messageReminder
           ) {
-            if (
-              new Date(doc.data().date.toDate()).getTime() <=
-              new Date().getTime() - 604800000
-            ) {
-              appointmentsFinaleMessage.push({ ...doc.data(), id: doc.id })
-            } else {
-              appointmentsNeedMessage.push({ ...doc.data(), id: doc.id })
-            }
+            appointmentsNeedMessage.push({ ...doc.data(), id: doc.id })
+          }
+
+          if (
+            new Date(doc.data().date.toDate()).getTime() <=
+              new Date().getTime() - 604800000 &&
+            !doc.data().finalMessage
+          ) {
+            appointmentsfinalMessage.push({ ...doc.data(), id: doc.id })
           }
         })
 
         setAppointments(appointments)
         setAppointmentsNeedMessage(appointmentsNeedMessage)
-        setAppointmentsFinaleMessage(appointmentsFinaleMessage)
+        setAppointmentsfinalMessage(appointmentsfinalMessage)
       }
     )
     return () => unsubscribe()
@@ -141,7 +146,7 @@ function Index() {
               {currentUser?.admin ? (
                 <Message
                   appointments={appointmentsNeedMessage}
-                  finalMessages={appointmentsFinaleMessage}
+                  finalMessages={appointmentsfinalMessage}
                 />
               ) : (
                 <main>

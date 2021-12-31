@@ -12,6 +12,7 @@ function Home({ currentUser, messageHome }) {
   const [customerPhone, setCustomerPhone] = useState()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const registerHandler = async (e) => {
     e.preventDefault()
@@ -89,6 +90,11 @@ function Home({ currentUser, messageHome }) {
         setCustomerName('')
         setCustomerEmail('')
         setCustomerPhone('')
+        setSuccess('Appointment booked successfully')
+        setTimeout(() => {
+          setSuccess('')
+        }, 5000)
+        setLoading(false)
         onChange(new Date())
       } catch (err) {
         console.log(err)
@@ -109,6 +115,7 @@ function Home({ currentUser, messageHome }) {
           <Calendar onChange={onChange} value={value} />
           <form className="add-customer__form">
             {error && <span className="error-message">{error}</span>}
+            {success && <span className="success-message">{success}</span>}
             <div className="form-group">
               <label htmlFor="name">Customer name:</label>
               <input

@@ -1,6 +1,6 @@
 import React from 'react'
 //firebase components
-import { doc, deleteDoc } from 'firebase/firestore'
+import { doc, deleteDoc, updateDoc } from 'firebase/firestore'
 import db from '../firebase'
 
 function List({ appointments }) {
@@ -10,6 +10,18 @@ function List({ appointments }) {
       .catch((error) => {
         console.log(error)
       })
+  }
+
+  const updateReminder = async (id, status) => {
+    await updateDoc(doc(db, 'appointments', id), {
+      messageReminder: status,
+    })
+  }
+
+  const updateFinalMessage = async (id, status) => {
+    await updateDoc(doc(db, 'appointments', id), {
+      finalMessage: status,
+    })
   }
 
   return (
@@ -35,6 +47,26 @@ function List({ appointments }) {
             >
               Delete
             </button>
+            <div className="checkbox-area">
+              <input
+                type="checkbox"
+                checked={appointment ? appointment.messageReminder : false}
+                id="reminder"
+                onChange={() => {
+                  updateReminder(appointment.id, !appointment.messageReminder)
+                }}
+              />
+              <label htmlFor="reminder">Reminder</label>
+              <input
+                type="checkbox"
+                checked={appointment ? appointment.finalMessage : false}
+                id="final"
+                onChange={() => {
+                  updateFinalMessage(appointment.id, !appointment.finalMessage)
+                }}
+              />
+              <label htmlFor="final">Final</label>
+            </div>
           </div>
         ))}
     </main>
